@@ -1,0 +1,24 @@
+system {
+    theme: dark
+    accent: blue
+}
+
+appearance {
+    animations: true
+    transparency: 0.85
+    icons {
+        style: tontoo
+        size: 48
+    }
+}
+
+app {
+    name: "My Tontoo App"
+    version: "26.1.0"
+    tags: [editor, utility, tontoo]
+    window {
+        width: 800
+        height: 600
+        resizable: true
+    }
+}
