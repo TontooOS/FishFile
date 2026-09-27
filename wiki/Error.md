@@ -78,13 +78,13 @@ FishError::InvalidPath(String)
 
 Empty or malformed dot-paths.
 
-### `Serde`
+### `Json`
 
 ```rust
-FishError::Serde(String)
+FishError::Json(String)
 ```
 
-`serde_json` failures, auto-converted via `From<serde_json::Error>`.
+JSON bridge failures (parse errors from the std-only `json` module).
 
 ### `Utf8`
 
@@ -108,7 +108,7 @@ Generic extension: `FishError::custom("...")` or `FishError::Custom("...")`.
 
 - `Parse { line, col, message }` → `parse error at line X, column Y: ...`
 - `Io` → `I/O error: ...`
-- `Serde` → `serde error: ...`
+- `Json` → `json error: ...`
 - `Custom` → raw message
 
 ## Cross References

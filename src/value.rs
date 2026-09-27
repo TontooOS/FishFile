@@ -1,5 +1,4 @@
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Ordered table – preserves insertion order, mirrors the file order.
@@ -18,8 +17,7 @@ pub type FishTable = IndexMap<String, FishValue>;
 /// | `String("dark")` | `dark` or `"dark"` | `theme: dark` |
 /// | `Array([...])` | `[1, 2, 3]` | `tags: [a, b, c]` |
 /// | `Table({...})` | `name { ... }` | `icons { size: 48 }` |
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(untagged)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum FishValue {
     Null,
     Bool(bool),
@@ -128,51 +126,19 @@ impl FishValue {
         }
     }
 
-    /// Convert to serde_json::Value (lossless except for table ordering).
-    pub fn to_json(&self) -> serde_json::Value {
-        match self {
-            Self::Null => serde_json::Value::Null,
-            Self::Bool(v) => serde_json::Value::Bool(*v),
-            Self::Integer(v) => serde_json::Value::Number((*v).into()),
-            Self::Float(v) => serde_json::Number::from_f64(*v)
-                .map(serde_json::Value::Number)
-                .unwrap_or(serde_json::Value::Null),
-            Self::String(v) => serde_json::Value::String(v.clone()),
-            Self::Array(v) => serde_json::Value::Array(v.iter().map(|x| x.to_json()).collect()),
-            Self::Table(v) => {
-                let mut map = serde_json::Map::new();
-                for (k, val) in v {
-                    map.insert(k.clone(), val.to_json());
-                }
-                serde_json::Value::Object(map)
-            }
-        }
+    /// Render as compact JSON (order-preserving, lossless).
+    pub fn to_json_string(&self) -> String {
+        crate::json::write_json(self, false)
     }
 
-    /// Create from serde_json::Value.
-    pub fn from_json(v: &serde_json::Value) -> Self {
-        match v {
-            serde_json::Value::Null => Self::Null,
-            serde_json::Value::Bool(b) => Self::Bool(*b),
-            serde_json::Value::Number(n) => {
-                if let Some(i) = n.as_i64() {
-                    Self::Integer(i)
-                } else if let Some(f) = n.as_f64() {
-                    Self::Float(f)
-                } else {
-                    Self::String(n.to_string())
-                }
-            }
-            serde_json::Value::String(s) => Self::String(s.clone()),
-            serde_json::Value::Array(arr) => Self::Array(arr.iter().map(Self::from_json).collect()),
-            serde_json::Value::Object(map) => {
-                let mut table = FishTable::new();
-                for (k, val) in map {
-                    table.insert(k.clone(), Self::from_json(val));
-                }
-                Self::Table(table)
-            }
-        }
+    /// Render as pretty JSON (2-space indent).
+    pub fn to_json_pretty_string(&self) -> String {
+        crate::json::write_json(self, true)
+    }
+
+    /// Parse from a JSON string.
+    pub fn from_json_str(s: &str) -> crate::error::Result<Self> {
+        crate::json::parse_json(s)
     }
 }
 
@@ -253,10 +219,5 @@ impl From<Vec<FishValue>> for FishValue {
 impl From<FishTable> for FishValue {
     fn from(v: FishTable) -> Self {
         Self::Table(v)
-    }
-}
-impl From<serde_json::Value> for FishValue {
-    fn from(v: serde_json::Value) -> Self {
-        Self::from_json(&v)
     }
 }

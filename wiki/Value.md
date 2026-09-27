@@ -41,7 +41,6 @@ Every variant has `From` impls for ergonomic creation:
 | `String`, `&str` | `String` |
 | `Vec<FishValue>` | `Array` |
 | `FishTable` | `Table` |
-| `serde_json::Value` | via `from_json` |
 
 ```rust
 let v: FishValue = true.into();
@@ -92,30 +91,25 @@ assert_eq!(v.as_str(), Some("dark"));
 ### JSON Conversion
 
 ```rust
-pub fn to_json(&self) -> serde_json::Value
-pub fn from_json(v: &serde_json::Value) -> Self
+pub fn to_json_string(&self) -> String
+pub fn to_json_pretty_string(&self) -> String
+pub fn from_json_str(s: &str) -> Result<Self>
 ```
 
-Lossless except for table ordering (JSON objects are unordered). Numbers distinguish `Integer` vs `Float` via `as_i64`/`as_f64`.
+Std-only JSON bridge (`json` module, no serde dependency). Tables keep
+insertion order, arrays stay arrays. Whole floats keep a `.0` suffix so
+they re-parse as floats; non-finite floats render as `null`.
 
 ```rust
 let v = FishValue::Integer(42);
-let json = v.to_json();
-assert_eq!(json, serde_json::json!(42));
+assert_eq!(v.to_json_string(), "42");
+let back = FishValue::from_json_str("42").unwrap();
+assert_eq!(back, v);
 ```
 
 ### Display
 
 `FishValue::Display` prints a debug-like representation (`Table(3 keys)` for tables, `[a, b]` for arrays).
-
-## Serde
-
-`FishValue` derives `Serialize`/`Deserialize` with `#[serde(untagged)]`, so it round-trips through any serde format.
-
-```rust
-let json = serde_json::to_string(&FishValue::Bool(true)).unwrap();
-let back: FishValue = serde_json::from_str(&json).unwrap();
-```
 
 ## Cross References
 

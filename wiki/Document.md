@@ -174,44 +174,45 @@ for (key, value) in doc.iter() {
 }
 ```
 
-## JSON & Serde
+## JSON
 
-### `to_json()` / `to_json_pretty()` / `to_json_value()`
+The crate ships a small std-only JSON bridge (`json` module, no serde
+dependency). Tables become JSON objects with insertion order preserved,
+arrays stay arrays.
+
+### `to_json()` / `to_json_pretty()`
 
 ```rust
-pub fn to_json(&self) -> Result<String>
-pub fn to_json_pretty(&self) -> Result<String>
-pub fn to_json_value(&self) -> serde_json::Value
+pub fn to_json(&self) -> String
+pub fn to_json_pretty(&self) -> String
 ```
 
-Convert the document to JSON. Tables become JSON objects, arrays stay arrays.
+Convert the document to compact or pretty (2-space) JSON. Infallible:
+non-finite floats render as `null`.
 
-### `from_json_str(s)` / `from_json_value(v)`
+### `from_json_str(s)`
 
 ```rust
 pub fn from_json_str(s: &str) -> Result<Self>
-pub fn from_json_value(value: &serde_json::Value) -> Result<Self>
 ```
 
-Create a document from JSON. Root must be an object.
-
-### `deserialize<T>()` / `from_serializable<T>()`
+Create a document from a JSON string. Root must be an object.
 
 ```rust
-pub fn deserialize<T: DeserializeOwned>(&self) -> Result<T>
-pub fn from_serializable<T: Serialize>(value: &T) -> Result<Self>
+let doc = FishDocument::from_json_str(r#"{"theme": "dark", "size": 48}"#).unwrap();
+let back = FishDocument::from_json_str(&doc.to_json()).unwrap();
+assert_eq!(back, doc);
 ```
 
-Bridge to any serde type via a JSON intermediate.
+### `FishValue` JSON helpers
 
 ```rust
-#[derive(Serialize, Deserialize)]
-struct Cfg { theme: String, size: i64 }
-
-let cfg = Cfg { theme: "dark".into(), size: 48 };
-let doc = FishDocument::from_serializable(&cfg).unwrap();
-let decoded: Cfg = doc.deserialize().unwrap();
+pub fn to_json_string(&self) -> String
+pub fn to_json_pretty_string(&self) -> String
+pub fn from_json_str(s: &str) -> Result<Self>
 ```
+
+Same bridge for single values.
 
 ## Error Handling
 

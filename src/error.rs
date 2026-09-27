@@ -21,8 +21,8 @@ pub enum FishError {
     #[error("invalid path: {0}")]
     InvalidPath(String),
 
-    #[error("serde error: {0}")]
-    Serde(String),
+    #[error("json error: {0}")]
+    Json(String),
 
     #[error("utf8 error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
@@ -45,8 +45,4 @@ impl FishError {
     }
 }
 
-impl From<serde_json::Error> for FishError {
-    fn from(e: serde_json::Error) -> Self {
-        Self::Serde(e.to_string())
-    }
-}
+

@@ -6,7 +6,7 @@ use std::path::Path;
 
 /// The main FishFile document – holds the root table of a .fico file.
 ///
-/// This is the high-level API similar to `serde_json::Value` or YAML mappings.
+/// This is the high-level API for nested config mappings.
 /// It supports nested `Table` values, dot-path access, file I/O and conversions.
 ///
 /// # Example
@@ -162,57 +162,22 @@ impl FishDocument {
         merge_tables(&mut self.root, &other.root);
     }
 
-    /// Convert to a JSON string (pretty).
-    pub fn to_json_pretty(&self) -> Result<String> {
-        let json = self.to_json_value();
-        Ok(serde_json::to_string_pretty(&json)?)
+    /// Convert to a JSON string (pretty, 2-space indent).
+    pub fn to_json_pretty(&self) -> String {
+        FishValue::Table(self.root.clone()).to_json_pretty_string()
     }
 
     /// Convert to a compact JSON string.
-    pub fn to_json(&self) -> Result<String> {
-        let json = self.to_json_value();
-        Ok(serde_json::to_string(&json)?)
+    pub fn to_json(&self) -> String {
+        FishValue::Table(self.root.clone()).to_json_string()
     }
 
-    /// Convert to `serde_json::Value`.
-    pub fn to_json_value(&self) -> serde_json::Value {
-        let mut map = serde_json::Map::new();
-        for (k, v) in &self.root {
-            map.insert(k.clone(), v.to_json());
-        }
-        serde_json::Value::Object(map)
-    }
-
-    /// Create from a JSON value.
-    pub fn from_json_value(value: &serde_json::Value) -> Result<Self> {
-        match value {
-            serde_json::Value::Object(map) => {
-                let mut table = FishTable::new();
-                for (k, v) in map {
-                    table.insert(k.clone(), FishValue::from_json(v));
-                }
-                Ok(Self { root: table })
-            }
+    /// Parse from a JSON string. The root must be an object.
+    pub fn from_json_str(s: &str) -> Result<Self> {
+        match FishValue::from_json_str(s)? {
+            FishValue::Table(table) => Ok(Self { root: table }),
             _ => Err(FishError::custom("JSON root must be an object")),
         }
-    }
-
-    /// Parse from JSON string.
-    pub fn from_json_str(s: &str) -> Result<Self> {
-        let v: serde_json::Value = serde_json::from_str(s)?;
-        Self::from_json_value(&v)
-    }
-
-    /// Deserialize into a Rust type via serde.
-    pub fn deserialize<T: serde::de::DeserializeOwned>(&self) -> Result<T> {
-        let json = self.to_json_value();
-        Ok(serde_json::from_value(json)?)
-    }
-
-    /// Create a document from any serializable Rust type.
-    pub fn from_serializable<T: serde::Serialize>(value: &T) -> Result<Self> {
-        let json = serde_json::to_value(value)?;
-        Self::from_json_value(&json)
     }
 
     /// Access as `Index` helper – returns Option.
@@ -430,10 +395,12 @@ mod tests {
         let mut doc = FishDocument::new();
         doc.set("system.theme", "dark");
         doc.set("count", 42);
-        let json = doc.to_json().unwrap();
+        let json = doc.to_json();
         let doc2 = FishDocument::from_json_str(&json).unwrap();
         assert_eq!(doc2.get("system.theme").unwrap().as_str(), Some("dark"));
         assert_eq!(doc2.get("count").unwrap().as_i64(), Some(42));
+        let pretty = doc.to_json_pretty();
+        assert_eq!(FishDocument::from_json_str(&pretty).unwrap(), doc);
     }
 
     #[test]
@@ -447,23 +414,18 @@ mod tests {
     }
 
     #[test]
-    fn test_serde_roundtrip() {
-        use serde::{Deserialize, Serialize};
-        #[derive(Debug, Serialize, Deserialize, PartialEq)]
-        struct Config {
-            theme: String,
-            size: i64,
-        }
-        let mut doc = FishDocument::new();
-        doc.set("theme", "dark");
-        doc.set("size", 48);
-        // fish table is flat here, so we need to test via from_serializable
-        let cfg = Config {
-            theme: "dark".into(),
-            size: 48,
-        };
-        let doc2 = FishDocument::from_serializable(&cfg).unwrap();
-        let decoded: Config = doc2.deserialize().unwrap();
-        assert_eq!(cfg, decoded);
+    fn test_json_value_roundtrip() {
+        let doc = FishDocument::from_json_str(
+            r#"{"theme": "dark", "size": 48, "tags": ["a", "b"], "nested": {"x": 1.5}}"#,
+        )
+        .unwrap();
+        assert_eq!(doc.get("theme").unwrap().as_str(), Some("dark"));
+        assert_eq!(doc.get("size").unwrap().as_i64(), Some(48));
+        assert_eq!(
+            doc.get("tags").unwrap().as_array().unwrap().len(),
+            2
+        );
+        let back = FishDocument::from_json_str(&doc.to_json()).unwrap();
+        assert_eq!(back, doc);
     }
 }

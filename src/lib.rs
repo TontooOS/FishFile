@@ -64,12 +64,13 @@
 //! // let loaded = FishDocument::from_file("/tmp/config.fico").unwrap();
 //!
 //! // JSON interop
-//! let json = doc.to_json().unwrap();
+//! let json = doc.to_json();
 //! let back = FishDocument::from_json_str(&json).unwrap();
 //! ```
 
 pub mod document;
 pub mod error;
+pub mod json;
 pub mod parser;
 pub mod value;
 pub mod writer;
@@ -116,7 +117,7 @@ pub fn save_file(doc: &FishDocument, path: impl AsRef<std::path::Path>) -> Resul
 
 // ---------------------------------------------------------------- optional macros
 
-/// Create a `FishValue` literal, similar to `serde_json::json!`.
+/// Create a `FishValue` literal.
 ///
 /// ```rust
 /// use fishfile::{fish_value, FishValue};

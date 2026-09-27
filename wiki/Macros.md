@@ -4,7 +4,7 @@ Two declarative macros for ergonomic construction without parsing.
 
 ## fish_value!
 
-Create a `FishValue` literal, similar to `serde_json::json!`.
+Create a `FishValue` literal.
 
 ```rust
 #[macro_export]

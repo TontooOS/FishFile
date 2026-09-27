@@ -52,8 +52,8 @@ fn main() -> fishfile::Result<()> {
     doc.write_to_file("/tmp/config.fico")?;
     let loaded = FishDocument::from_file("/tmp/config.fico")?;
 
-    // JSON + Serde
-    let json = doc.to_json()?;
+    // JSON (std-only bridge, no serde)
+    let json = doc.to_json();
     let back = FishDocument::from_json_str(&json)?;
 
     Ok(())

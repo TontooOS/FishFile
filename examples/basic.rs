@@ -37,7 +37,7 @@ fn main() -> fishfile::Result<()> {
     println!("\n--- Generated .fico ---\n{}", doc2.to_string());
 
     // ------------------------------------------------ JSON interop (before edit)
-    let json = doc2.to_json_pretty()?;
+    let json = doc2.to_json_pretty();
     println!("\n--- JSON ---\n{}", json);
     let from_json = FishDocument::from_json_str(&json)?;
     assert_eq!(doc2.get("system.theme"), from_json.get("system.theme"));
@@ -57,21 +57,10 @@ fn main() -> fishfile::Result<()> {
     println!("Loaded back, equal: {}", loaded == doc2);
     assert_eq!(loaded, doc2);
 
-    // ------------------------------------------------ serde
-    use serde::{Deserialize, Serialize};
-    #[derive(Debug, Serialize, Deserialize, PartialEq)]
-    struct Settings {
-        theme: String,
-        size: i64,
-    }
-    let s = Settings {
-        theme: "dark".into(),
-        size: 48,
-    };
-    let doc3 = FishDocument::from_serializable(&s)?;
-    let decoded: Settings = doc3.deserialize()?;
-    assert_eq!(s, decoded);
-    println!("\nSerde roundtrip OK: {:?}", decoded);
+    // ------------------------------------------------ JSON value roundtrip
+    let v = FishValue::from_json_str(r#"{"theme": "dark", "size": 48}"#)?;
+    assert_eq!(v.to_json_string(), r#"{"theme":"dark","size":48}"#);
+    println!("\nJSON value roundtrip OK: {:?}", v);
 
     // ------------------------------------------------ macros
     let v = fishfile::fish_value!({"hello" => "world", "num" => 123});
