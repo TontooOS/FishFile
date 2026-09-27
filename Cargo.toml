@@ -15,7 +15,6 @@ readme = "README.md"
 
 [dependencies]
 foundation = { path = "../Foundation" }
-thiserror = "1"
 
 [dev-dependencies]
 tempfile = "3"

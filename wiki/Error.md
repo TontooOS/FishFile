@@ -104,7 +104,7 @@ Generic extension: `FishError::custom("...")` or `FishError::Custom("...")`.
 
 ## Display
 
-`FishError` implements `Display` and `Error` (via `thiserror`).
+`FishError` implements `Display` and `Error` with hand-written impls (no `thiserror` dependency).
 
 - `Parse { line, col, message }` → `parse error at line X, column Y: ...`
 - `Io` → `I/O error: ...`
