@@ -85,7 +85,7 @@ appearance {
 
 ### Round-Trip
 
-Parsing then writing then parsing again yields an equal table (`table == parse(to_string(table))`) for all well-formed inputs. Ordering is preserved via `IndexMap`.
+Parsing then writing then parsing again yields an equal table (`table == parse(to_string(table))`) for all well-formed inputs. Ordering is preserved via Foundation's `OrderedMap`.
 
 ```rust
 let input = "system {\n    theme: dark\n}\n";

@@ -191,7 +191,7 @@ impl FishDocument {
     }
 
     /// Iterate over top-level entries.
-    pub fn iter(&self) -> indexmap::map::Iter<'_, String, FishValue> {
+    pub fn iter(&self) -> foundation::collections::OrderedIter<'_, String, FishValue> {
         self.root.iter()
     }
 }

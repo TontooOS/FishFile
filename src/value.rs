@@ -1,8 +1,8 @@
-use indexmap::IndexMap;
+use foundation::collections::OrderedMap;
 use std::fmt;
 
 /// Ordered table – preserves insertion order, mirrors the file order.
-pub type FishTable = IndexMap<String, FishValue>;
+pub type FishTable = OrderedMap<String, FishValue>;
 
 /// A single value inside a .fico file.
 ///

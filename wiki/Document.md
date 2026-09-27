@@ -10,7 +10,7 @@
 pub fn new() -> Self
 ```
 
-Create an empty document. No allocations beyond the root `IndexMap`.
+Create an empty document. No allocations beyond the root `OrderedMap`.
 
 ```rust
 let doc = FishDocument::new();

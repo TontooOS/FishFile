@@ -5,10 +5,10 @@
 ## FishTable
 
 ```rust
-pub type FishTable = IndexMap<String, FishValue>
+pub type FishTable = OrderedMap<String, FishValue>
 ```
 
-An `IndexMap` preserving insertion order – the order you wrote keys in the file is the order you get when iterating or re-serializing.
+A Foundation `OrderedMap` preserving insertion order – the order you wrote keys in the file is the order you get when iterating or re-serializing.
 
 ```rust
 let mut table = FishTable::new();

@@ -14,8 +14,8 @@ categories = ["config", "parser-implementations", "encoding"]
 readme = "README.md"
 
 [dependencies]
+foundation = { path = "../Foundation" }
 thiserror = "1"
-indexmap = { version = "2", features = ["serde"] }
 
 [dev-dependencies]
 tempfile = "3"

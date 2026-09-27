@@ -1,9 +1,9 @@
 //! Minimal std-only JSON bridge for FishFile.
 //!
 //! Parses JSON text directly into [`FishValue`](crate::value::FishValue)
-//! (order-preserving via `IndexMap`) and renders values back to JSON text.
-//! This replaces the former `serde_json` bridge so the crate has no
-//! serde dependency. `thiserror`/`indexmap` are untouched.
+//! (order-preserving via Foundation's `OrderedMap`) and renders values back
+//! to JSON text. This replaces the former `serde_json` bridge so the crate
+//! has no serde dependency.
 
 use crate::error::{FishError, Result};
 use crate::value::{FishTable, FishValue};
