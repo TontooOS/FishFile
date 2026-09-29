@@ -4,7 +4,7 @@ Fish Config (`.fico`) parser, writer and editor for TontooOS. A lightweight, hum
 
 - Repository: https://github.com/TontooOS/FishFile
 - License: TCL v26.1
-- Version: 26.1.0
+- Version: 27.0.0
 
 ## Feature Index
 
@@ -64,4 +64,4 @@ See [Document.md](Document.md), [Value.md](Value.md) and [Parser.md](Parser.md) 
 
 ## Changelog
 
-- 2026-08-26: Initial wiki for FishFile 26.1.0
+- 2026-08-26: Initial wiki for FishFile 27.0.0
