@@ -3,7 +3,7 @@
 Fish Config (`.fico`) parser, writer and editor for TontooOS. A lightweight, human-friendly alternative to JSON/YAML with native nesting, comments and typed values.
 
 - Repository: https://github.com/TontooOS/FishFile
-- License: TCL v26.1
+- License: TCL v27.0
 - Version: 27.0.0
 
 ## Feature Index
